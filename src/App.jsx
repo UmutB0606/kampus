@@ -41,6 +41,8 @@ const TR = {
   linkCopied:"Kopyalandı!", addPhoto:"Fotoğraf Ekle", read:"Okundu",
   username:"Kullanıcı Adı", usernamePlaceholder:"kullanici_adi",
   profileUrl:"Profil Linki", shareProfile:"Profili Paylaş",
+  catAll:"Tümü", catEv:"Ev & Arkadaş", catEsya:"Eşya", catStaj:"Staj", catDers:"Ders",
+  locAll:"Tümü",
 }
 
 const EN = {
@@ -74,6 +76,8 @@ const EN = {
   linkCopied:"Copied!", addPhoto:"Add Photo", read:"Read",
   username:"Username", usernamePlaceholder:"username",
   profileUrl:"Profile Link", shareProfile:"Share Profile",
+  catAll:"All", catEv:"Housing", catEsya:"Items", catStaj:"Internship", catDers:"Courses",
+  locAll:"All Locations",
 }
 
 function ago(ts) {
@@ -506,6 +510,7 @@ function BottomNav({active,setActive,unread,notifCount}) {
 // ── POST CARD ─────────────────────────────────────────────────────────────────
 function PostCard({p,user,onUserClick,onTagClick,onLike,onFav,onDelete,i=0,t}) {
   const m=CAT[p.category]
+  const catLabel={"ev":t.catEv,"esya":t.catEsya,"staj":t.catStaj,"ders":t.catDers}[p.category]||m.label
   const liked=(p.likes||[]).includes(user.email)
   const faved=(p.favorited_by||[]).includes(user.email)
   const mine=p.user_email===user.email
@@ -522,7 +527,7 @@ function PostCard({p,user,onUserClick,onTagClick,onLike,onFav,onDelete,i=0,t}) {
       {lightbox&&<Lightbox src={p.image_url} onClose={()=>setLightbox(false)}/>}
 
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-        <span className="bdg" style={{background:m.color+"18",color:m.color}}>{m.emoji} {m.label}</span>
+        <span className="bdg" style={{background:m.color+"18",color:m.color}}>{m.emoji} {catLabel}</span>
         {p.location&&<span style={{fontSize:11,color:"var(--sub)"}}>📍 {p.location}</span>}
         <span style={{fontSize:11,color:"var(--sub)"}}>{ago(p.created_at)}</span>
         {mine&&<span className="bdg" style={{background:"#6366f111",color:"#6366f1"}}>{t.yourPost}</span>}
@@ -669,9 +674,9 @@ function FeedPage({user,onUserClick,t}) {
       </div>
 
       <div style={{display:"flex",gap:8,marginBottom:20,overflowX:"auto",paddingBottom:4}}>
-        <button className={`catbtn ${filter==="all"?"on":""}`} onClick={()=>setFilter("all")}>✦ Tümü</button>
-        {Object.entries(CAT).filter(([k])=>k!=="staj").map(([k,v])=>(
-          <button key={k} className={`catbtn ${filter===k?"on":""}`} onClick={()=>setFilter(k)}>{v.emoji} {v.label}</button>
+        <button className={`catbtn ${filter==="all"?"on":""}`} onClick={()=>setFilter("all")}>✦ {t.catAll}</button>
+        {[["ev",t.catEv,"🏠"],["esya",t.catEsya,"🪑"],["ders",t.catDers,"📚"]].map(([k,label,emoji])=>(
+          <button key={k} className={`catbtn ${filter===k?"on":""}`} onClick={()=>setFilter(k)}>{emoji} {label}</button>
         ))}
       </div>
 
