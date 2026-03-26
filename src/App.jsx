@@ -26,6 +26,8 @@ const TR = {
   follow:"Takip Et", following:"✓ Takip Ediliyor", pending:"⏳ İstek Gönderildi",
   sendMsg:"💬 Mesaj", memberSince:"'den beri üye", post:"İlan", like:"Beğeni",
   follower:"Takipçi", followingLbl:"Takip", department:"Bölüm", grade:"Sınıf",
+  darkModeSub:"Koyu tema kullan", langSub:"Uygulama dili",
+  select:"Seç", year1:"1. Sınıf", year2:"2. Sınıf", year3:"3. Sınıf", year4:"4. Sınıf", masters:"Yüksek Lisans",
   bio:"Bio", name:"İsim", cancel2:"İptal", close:"Kapat", appearance:"Görünüm",
   about:"Hakkında", companyHint:"💡 Staj ilanı vermek için şirket hesabı gereklidir.",
   postInternship:"+ İlan Ver", position:"Pozisyon", company:"Şirket Adı",
@@ -53,6 +55,8 @@ const EN = {
   follow:"Follow", following:"✓ Following", pending:"⏳ Request Sent",
   sendMsg:"💬 Message", memberSince:" member since", post:"Post", like:"Like",
   follower:"Followers", followingLbl:"Following", department:"Department", grade:"Year",
+  darkModeSub:"Use dark theme", langSub:"App language",
+  select:"Select", year1:"1st Year", year2:"2nd Year", year3:"3rd Year", year4:"4th Year", masters:"Masters",
   bio:"Bio", name:"Name", cancel2:"Cancel", close:"Close", appearance:"Appearance",
   about:"About", companyHint:"💡 Company account required to post internships.",
   postInternship:"+ Post", position:"Position", company:"Company Name",
@@ -1053,9 +1057,9 @@ function ProfilPage({user,setUser,t}) {
               <div><div className="lbl">{t.department.toUpperCase()}</div><input className="inp" placeholder="Bilgisayar Mühendisliği" value={form.bolum} onChange={e=>setForm(p=>({...p,bolum:e.target.value}))}/></div>
               <div><div className="lbl">{t.grade.toUpperCase()}</div>
                 <select className="sel" value={form.sinif} onChange={e=>setForm(p=>({...p,sinif:e.target.value}))}>
-                  <option value="">Seç</option>
-                  {[1,2,3,4].map(n=><option key={n} value={n}>{n}. Sınıf</option>)}
-                  <option value="Yüksek Lisans">Yüksek Lisans</option>
+                  <option value="">{t.select}</option>
+                  {[[1,t.year1],[2,t.year2],[3,t.year3],[4,t.year4]].map(([n,l])=><option key={n} value={n}>{l}</option>)}
+                  <option value="Yüksek Lisans">{t.masters}</option>
                 </select>
               </div>
             </>}
@@ -1109,14 +1113,14 @@ function SettingsPage({dark,setDark,lang,setLang,t}) {
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:"1px solid var(--border)"}}>
             <div>
               <div style={{fontSize:14,fontWeight:500,color:"var(--text)"}}>🌙 {t.darkMode}</div>
-              <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>Koyu tema kullan</div>
+              <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>{t.darkModeSub}</div>
             </div>
             <button className={`toggle ${dark?"on":""}`} onClick={()=>setDark(!dark)}/>
           </div>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0"}}>
             <div>
               <div style={{fontSize:14,fontWeight:500,color:"var(--text)"}}>🌐 {t.language}</div>
-              <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>Uygulama dili</div>
+              <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>{t.langSub}</div>
             </div>
             <div style={{display:"flex",gap:8}}>
               {[["tr","🇹🇷 TR"],["en","🇬🇧 EN"]].map(([k,l])=>(
