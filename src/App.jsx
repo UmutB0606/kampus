@@ -28,6 +28,8 @@ const TR = {
   follower:"Takipçi", followingLbl:"Takip", department:"Bölüm", grade:"Sınıf",
   darkModeSub:"Koyu tema kullan", langSub:"Uygulama dili",
   select:"Seç", year1:"1. Sınıf", year2:"2. Sınıf", year3:"3. Sınıf", year4:"4. Sınıf", masters:"Yüksek Lisans",
+  bioPlaceholder:"Kendini kısaca tanıt...", student:"🎓 Öğrenci", company2:"🏢 Şirket",
+  yearLabel:"Sınıf",
   bio:"Bio", name:"İsim", cancel2:"İptal", close:"Kapat", appearance:"Görünüm",
   about:"Hakkında", companyHint:"💡 Staj ilanı vermek için şirket hesabı gereklidir.",
   postInternship:"+ İlan Ver", position:"Pozisyon", company:"Şirket Adı",
@@ -57,6 +59,8 @@ const EN = {
   follower:"Followers", followingLbl:"Following", department:"Department", grade:"Year",
   darkModeSub:"Use dark theme", langSub:"App language",
   select:"Select", year1:"1st Year", year2:"2nd Year", year3:"3rd Year", year4:"4th Year", masters:"Masters",
+  bioPlaceholder:"Tell us about yourself...", student:"🎓 Student", company2:"🏢 Company",
+  yearLabel:"Year",
   bio:"Bio", name:"Name", cancel2:"Cancel", close:"Close", appearance:"Appearance",
   about:"About", companyHint:"💡 Company account required to post internships.",
   postInternship:"+ Post", position:"Position", company:"Company Name",
@@ -404,7 +408,7 @@ function Sidebar({active,setActive,user,onLogout,unread,notifCount,t}) {
           <Avatar name={user.name} src={user.avatar} size={32}/>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:13,fontWeight:600,color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name}</div>
-            <div style={{fontSize:10,color:"var(--sub)"}}>{user.account_type==="sirket"?"🏢 Şirket":"🎓 Öğrenci"}</div>
+            <div style={{fontSize:10,color:"var(--sub)"}}>{user.account_type==="sirket"?t.company2:t.student}</div>
           </div>
         </div>
         <button className="nav-item" onClick={onLogout} style={{color:"#ef4444"}}><span className="nav-icon">🚪</span>{t.logout}</button>
@@ -688,7 +692,7 @@ function SearchPage({user,onUserClick,onStartMessage,t}) {
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontWeight:600,fontSize:15,color:"var(--text)"}}>{u.name}</div>
                   <div style={{fontSize:12,color:"var(--sub)"}}>{u.bolum||""}{u.sinif?` · ${u.sinif}. Sınıf`:""}</div>
-                  <div style={{fontSize:11,color:"var(--sub)",marginTop:2}}>{u.account_type==="sirket"?"🏢 Şirket":"🎓 Öğrenci"}</div>
+                  <div style={{fontSize:11,color:"var(--sub)",marginTop:2}}>{u.account_type==="sirket"?t.company2:t.student}</div>
                 </div>
                 <button className="sbtn" style={{fontSize:12,padding:"6px 14px"}} onClick={e=>{e.stopPropagation();onStartMessage(u)}}>💬</button>
               </div>
@@ -983,7 +987,7 @@ function StajPage({user,t}) {
 }
 
 // ── PROFİL PAGE ───────────────────────────────────────────────────────────────
-function ProfilPage({user,setUser,t}) {
+function ProfilPage({user,setUser,t,lang}) {
   const [profile,setProfile]=useState(null), [editing,setEditing]=useState(false)
   const [form,setForm]=useState({name:"",bio:"",bolum:"",sinif:""})
   const [saving,setSaving]=useState(false), [uploading,setUploading]=useState(false)
@@ -1039,8 +1043,8 @@ function ProfilPage({user,setUser,t}) {
           <div style={{flex:1}}>
             <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:18,color:"var(--text)"}}>{profile.name}</div>
             <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>{profile.email}</div>
-            <div style={{fontSize:12,color:"#6366f1",marginTop:3,fontWeight:500}}>{user.account_type==="sirket"?"🏢 Şirket":"🎓 Öğrenci"}</div>
-            {profile.bolum&&<div style={{fontSize:13,color:"#6366f1",fontWeight:500,marginTop:4}}>{profile.bolum}{profile.sinif&&` · ${profile.sinif}. Sınıf`}</div>}
+            <div style={{fontSize:12,color:"#6366f1",marginTop:3,fontWeight:500}}>{user.account_type==="sirket"?t.company2:t.student}</div>
+            {profile.bolum&&<div style={{fontSize:13,color:"#6366f1",fontWeight:500,marginTop:4}}>{profile.bolum}{profile.sinif&&` · ${lang==="en"?[t.year1,t.year2,t.year3,t.year4][profile.sinif-1]||profile.sinif:profile.sinif+". Sınıf"}`}</div>}
             <div style={{fontSize:11,color:"var(--sub)",marginTop:4}}>{joinYear(profile.created_at)}{t.memberSince}</div>
           </div>
           <button onClick={()=>setEditing(!editing)} style={{background:"none",border:"1px solid var(--border)",borderRadius:100,padding:"6px 14px",fontSize:12,color:"var(--sub)",cursor:"pointer",fontFamily:"'Plus Jakarta Sans'",fontWeight:500}}>
@@ -1063,7 +1067,7 @@ function ProfilPage({user,setUser,t}) {
                 </select>
               </div>
             </>}
-            <div><div className="lbl">{t.bio.toUpperCase()}</div><textarea className="inp" placeholder="Kendini kısaca tanıt..." rows={3} style={{resize:"vertical"}} value={form.bio} onChange={e=>setForm(p=>({...p,bio:e.target.value}))}/></div>
+            <div><div className="lbl">{t.bio.toUpperCase()}</div><textarea className="inp" placeholder={t.bioPlaceholder} rows={3} style={{resize:"vertical"}} value={form.bio} onChange={e=>setForm(p=>({...p,bio:e.target.value}))}/></div>
             <button className="pbtn" disabled={saving} onClick={saveProfile}>{saving?<Spinner size={16}/>:t.save}</button>
           </div>
         )}
@@ -1185,7 +1189,7 @@ export default function App() {
     messages:      <MessagesPage user={user} onUnreadChange={setUnread} startWith={startMsgWith} t={t}/>,
     notifications: <NotificationsPage user={user} onUpdate={setNotifCount} t={t}/>,
     favorites:     <FavoritesPage user={user} onUserClick={setViewingUser} t={t}/>,
-    profil:        <ProfilPage user={user} setUser={setUser} t={t}/>,
+    profil:        <ProfilPage user={user} setUser={setUser} t={t} lang={lang}/>,
     settings:      <SettingsPage dark={dark} setDark={setDark} lang={lang} setLang={setLang} t={t}/>,
   }
 
