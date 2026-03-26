@@ -29,16 +29,18 @@ const TR = {
   darkModeSub:"Koyu tema kullan", langSub:"Uygulama dili",
   select:"Seç", year1:"1. Sınıf", year2:"2. Sınıf", year3:"3. Sınıf", year4:"4. Sınıf", masters:"Yüksek Lisans",
   bioPlaceholder:"Kendini kısaca tanıt...", student:"🎓 Öğrenci", company2:"🏢 Şirket",
-  yearLabel:"Sınıf",
-  bio:"Bio", name:"İsim", cancel2:"İptal", close:"Kapat", appearance:"Görünüm",
-  about:"Hakkında", companyHint:"💡 Staj ilanı vermek için şirket hesabı gereklidir.",
+  bio:"Bio", name:"İsim", close:"Kapat", appearance:"Görünüm", about:"Hakkında",
+  companyHint:"💡 Staj ilanı vermek için şirket hesabı gereklidir.",
   postInternship:"+ İlan Ver", position:"Pozisyon", company:"Şirket Adı",
   description:"Açıklama", location:"Konum", tags:"Etiketler (max 5)",
   category:"Kategori", title:"Başlık", applyMsg:"Başvuru Mesajı",
   emailNote:"Başvurunuz ile gönderilecek.", publish:"Yayınla",
   searchPlaceholder:"İlan, kullanıcı, etiket ara...", typeToSearch:"Aramak istediğini yaz...",
   noResult:"Sonuç bulunamadı.", noPost:"Henüz ilan vermedin.",
-  internshipNote:"Staj İlanı", yourPost:"Senin ilanın",
+  internshipNote:"Staj", yourPost:"Senin ilanın", copyLink:"Linki Kopyala",
+  linkCopied:"Kopyalandı!", addPhoto:"Fotoğraf Ekle", read:"Okundu",
+  username:"Kullanıcı Adı", usernamePlaceholder:"kullanici_adi",
+  profileUrl:"Profil Linki", shareProfile:"Profili Paylaş",
 }
 
 const EN = {
@@ -60,16 +62,18 @@ const EN = {
   darkModeSub:"Use dark theme", langSub:"App language",
   select:"Select", year1:"1st Year", year2:"2nd Year", year3:"3rd Year", year4:"4th Year", masters:"Masters",
   bioPlaceholder:"Tell us about yourself...", student:"🎓 Student", company2:"🏢 Company",
-  yearLabel:"Year",
-  bio:"Bio", name:"Name", cancel2:"Cancel", close:"Close", appearance:"Appearance",
-  about:"About", companyHint:"💡 Company account required to post internships.",
+  bio:"Bio", name:"Name", close:"Close", appearance:"Appearance", about:"About",
+  companyHint:"💡 Company account required to post internships.",
   postInternship:"+ Post", position:"Position", company:"Company Name",
   description:"Description", location:"Location", tags:"Tags (max 5)",
   category:"Category", title:"Title", applyMsg:"Application Message",
   emailNote:"Your application will be sent from", publish:"Publish",
   searchPlaceholder:"Search posts, users, tags...", typeToSearch:"Start typing to search...",
   noResult:"No results found.", noPost:"No posts yet.",
-  internshipNote:"Internship", yourPost:"Your post",
+  internshipNote:"Internship", yourPost:"Your post", copyLink:"Copy Link",
+  linkCopied:"Copied!", addPhoto:"Add Photo", read:"Read",
+  username:"Username", usernamePlaceholder:"username",
+  profileUrl:"Profile Link", shareProfile:"Share Profile",
 }
 
 function ago(ts) {
@@ -82,7 +86,6 @@ function ago(ts) {
 function joinYear(ts) { return ts ? new Date(ts).getFullYear() : new Date().getFullYear() }
 const validBilkent = e => e.endsWith("@bilkent.edu.tr") || e.endsWith("@ug.bilkent.edu.tr")
 
-// CSS uses CSS custom properties so dark mode works everywhere instantly
 function getCSS(dark) {
   return `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap');
@@ -145,6 +148,8 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
 .likebtn.on{border-color:#6366f1;color:#6366f1;background:#6366f111;}
 .favbtn{background:none;border:1px solid var(--border);border-radius:100px;padding:5px 10px;cursor:pointer;font-size:14px;color:var(--sub);transition:all .2s;}
 .favbtn.on{border-color:#ef4444;color:#ef4444;}
+.copybtn{background:none;border:1px solid var(--border);border-radius:100px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--sub);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:4px;}
+.copybtn:hover{border-color:#6366f1;color:#6366f1;}
 .srch{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:10px 20px 10px 44px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;width:100%;outline:none;transition:border .2s,background .25s;}
 .srch:focus{border-color:#6366f1;}
 .srch::placeholder{color:var(--sub);}
@@ -161,7 +166,9 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
 .user-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;transition:all .2s;cursor:pointer;}
 .user-row:hover{border-color:#6366f144;transform:translateY(-1px);}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;transition:background .25s,border .25s;}
-.section-title{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:14px;}
+.post-img{width:100%;max-height:300px;object-fit:cover;border-radius:12px;margin-bottom:12px;cursor:pointer;}
+.img-upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border .2s;}
+.img-upload-area:hover{border-color:#6366f1;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .3s ease forwards;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -193,19 +200,28 @@ function Empty({ icon, text }) {
   )
 }
 
+// ── IMAGE LIGHTBOX ────────────────────────────────────────────────────────────
+function Lightbox({ src, onClose }) {
+  return (
+    <div className="ovl" onClick={onClose} style={{zIndex:200}}>
+      <img src={src} alt="" style={{maxWidth:"90vw",maxHeight:"90vh",objectFit:"contain",borderRadius:12}}/>
+    </div>
+  )
+}
+
 // ── USER PROFILE MODAL ────────────────────────────────────────────────────────
 function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
   const [profile,setProfile]=useState(null), [posts,setPosts]=useState([])
   const [followStatus,setFollowStatus]=useState(null)
   const [followerCount,setFollowerCount]=useState(0), [followingCount,setFollowingCount]=useState(0)
-  const [loading,setLoading]=useState(true)
+  const [loading,setLoading]=useState(true), [copied,setCopied]=useState(false)
   const isOwn = email===currentUser.email
 
   useEffect(()=>{ load() },[email])
 
   async function load() {
     setLoading(true)
-    const [{ data:p },{ data:ps },{ data:myFollow },{ data:followers },{ data:following }]=await Promise.all([
+    const [{data:p},{data:ps},{data:myFollow},{data:followers},{data:following}]=await Promise.all([
       supabase.from("profiles").select("*").eq("email",email).single(),
       supabase.from("posts").select("*").eq("user_email",email).order("created_at",{ascending:false}),
       supabase.from("follows").select("*").eq("follower_email",currentUser.email).eq("following_email",email).maybeSingle(),
@@ -213,10 +229,8 @@ function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
       supabase.from("follows").select("id").eq("follower_email",email).eq("status","accepted"),
     ])
     setProfile(p||{name:email.split("@")[0],email})
-    setPosts(ps||[])
-    setFollowStatus(myFollow?.status||null)
-    setFollowerCount(followers?.length||0)
-    setFollowingCount(following?.length||0)
+    setPosts(ps||[]);setFollowStatus(myFollow?.status||null)
+    setFollowerCount(followers?.length||0);setFollowingCount(following?.length||0)
     setLoading(false)
   }
 
@@ -230,6 +244,12 @@ function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
     }
   }
 
+  function copyProfileLink() {
+    const handle = profile.username || email
+    navigator.clipboard.writeText(`kampus-gold.vercel.app/profile/${handle}`)
+    setCopied(true);setTimeout(()=>setCopied(false),2000)
+  }
+
   const followLabel = followStatus==="accepted"?t.following:followStatus==="pending"?t.pending:t.follow
 
   return (
@@ -240,9 +260,10 @@ function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:20}}>
               <Avatar name={profile.name} src={profile.avatar_url} size={80}/>
               <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:20,marginTop:12,color:"var(--text)"}}>{profile.name}</div>
-              <div style={{fontSize:12,color:"var(--sub)",marginTop:3}}>{profile.email}</div>
+              {profile.username&&<div style={{fontSize:12,color:"#6366f1",marginTop:2}}>@{profile.username}</div>}
+              <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>{profile.email}</div>
               {profile.bolum&&<div style={{fontSize:13,color:"#6366f1",fontWeight:500,marginTop:6}}>{profile.bolum}{profile.sinif?` · ${profile.sinif}. Sınıf`:""}</div>}
-              <div style={{fontSize:11,color:"var(--sub)",marginTop:4}}>{profile.account_type==="sirket"?"🏢 Şirket":"🎓 Öğrenci"} · {joinYear(profile.created_at)}{t.memberSince}</div>
+              <div style={{fontSize:11,color:"var(--sub)",marginTop:4}}>{profile.account_type==="sirket"?t.company2:t.student} · {joinYear(profile.created_at)}{t.memberSince}</div>
               {profile.bio&&<div style={{fontSize:13,color:"var(--sub)",textAlign:"center",lineHeight:1.6,marginTop:10,padding:"0 8px"}}>{profile.bio}</div>}
             </div>
 
@@ -256,11 +277,15 @@ function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
             </div>
 
             {!isOwn&&(
-              <div style={{display:"flex",gap:10,marginBottom:20}}>
+              <div style={{display:"flex",gap:10,marginBottom:12}}>
                 <button className="pbtn" style={{flex:1,opacity:followStatus==="pending"?.6:1}} onClick={handleFollow} disabled={followStatus==="pending"}>{followLabel}</button>
                 <button className="obtn" style={{flex:1}} onClick={()=>{onMessage(profile);onClose()}}>{t.sendMsg}</button>
               </div>
             )}
+
+            <button onClick={copyProfileLink} className="gbtn" style={{marginBottom:16,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              {copied?"✅ "+t.linkCopied:"🔗 "+t.shareProfile}
+            </button>
 
             {posts.length>0&&(
               <>
@@ -270,9 +295,9 @@ function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
                     const m=CAT[p.category]
                     return (
                       <div key={p.id} style={{padding:12,background:"#6366f108",border:"1px solid #6366f122",borderRadius:12}}>
+                        {p.image_url&&<img src={p.image_url} alt="" style={{width:"100%",height:80,objectFit:"cover",borderRadius:8,marginBottom:8}}/>}
                         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
                           <span className="bdg" style={{background:m.color+"18",color:m.color,fontSize:10}}>{m.emoji} {m.label}</span>
-                          <span style={{fontSize:10,color:"var(--sub)"}}>{ago(p.created_at)}</span>
                         </div>
                         <div style={{fontSize:13,fontWeight:600,color:"var(--text)"}}>{p.title}</div>
                       </div>
@@ -291,9 +316,9 @@ function UserProfileModal({ email, currentUser, onClose, onMessage, t }) {
 
 // ── AUTH ─────────────────────────────────────────────────────────────────────
 function Auth({ onLogin }) {
-  const [tab,setTab]=useState("login"), [name,setName]=useState(""), [email,setEmail]=useState("")
-  const [pass,setPass]=useState(""), [accType,setAccType]=useState("ogrenci")
-  const [err,setErr]=useState(""), [ok,setOk]=useState(""), [busy,setBusy]=useState(false)
+  const [tab,setTab]=useState("login"),[name,setName]=useState(""),[email,setEmail]=useState("")
+  const [pass,setPass]=useState(""),[accType,setAccType]=useState("ogrenci")
+  const [err,setErr]=useState(""),[ok,setOk]=useState(""),[busy,setBusy]=useState(false)
 
   async function register() {
     setErr("");setOk("")
@@ -321,9 +346,9 @@ function Auth({ onLogin }) {
     setErr("");setOk("")
     if(!email) return setErr("Önce e-posta adresini yaz.")
     setBusy(true)
-    await supabase.auth.resetPasswordForEmail(email,{redirectTo:"https://kampus-gold.vercel.app"})
+    await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/reset-password`})
     setBusy(false)
-    setOk("✅ Şifre sıfırlama maili gönderildi!")
+    setOk("✅ Şifre sıfırlama maili gönderildi! E-postanı kontrol et.")
   }
 
   return (
@@ -369,6 +394,46 @@ function Auth({ onLogin }) {
           </div>
         </div>
         <div style={{textAlign:"center",marginTop:14,fontSize:11,color:"var(--sub)"}}>Öğrenci hesabı için sadece @bilkent.edu.tr e-postası kabul edilir</div>
+      </div>
+    </div>
+  )
+}
+
+// ── RESET PASSWORD PAGE ───────────────────────────────────────────────────────
+function ResetPassword({ onDone }) {
+  const [pass,setPass]=useState(""),[confirm,setConfirm]=useState("")
+  const [busy,setBusy]=useState(false),[err,setErr]=useState(""),[ok,setOk]=useState("")
+
+  async function reset() {
+    setErr("")
+    if(pass.length<6) return setErr("Şifre en az 6 karakter olmalı.")
+    if(pass!==confirm) return setErr("Şifreler eşleşmiyor.")
+    setBusy(true)
+    const {error}=await supabase.auth.updateUser({password:pass})
+    setBusy(false)
+    if(error) return setErr(error.message)
+    setOk("✅ Şifren güncellendi! Giriş yapabilirsin.")
+    setTimeout(()=>onDone(),2000)
+  }
+
+  return (
+    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{width:"100%",maxWidth:400}} className="fu">
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{width:56,height:56,background:"linear-gradient(135deg,#6366f1,#8b5cf6)",borderRadius:16,display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12}}>
+            <span style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:24,color:"#fff"}}>K</span>
+          </div>
+          <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:22,color:"var(--text)"}}>Yeni Şifre Belirle</div>
+        </div>
+        <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:24,padding:28}}>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <div><div className="lbl">YENİ ŞİFRE</div><input className="inp" type="password" placeholder="En az 6 karakter" value={pass} onChange={e=>setPass(e.target.value)}/></div>
+            <div><div className="lbl">ŞİFRE TEKRAR</div><input className="inp" type="password" placeholder="Şifreni tekrar gir" value={confirm} onChange={e=>setConfirm(e.target.value)} onKeyDown={e=>e.key==="Enter"&&reset()}/></div>
+            {err&&<div className="err">{err}</div>}
+            {ok&&<div className="ok">{ok}</div>}
+            <button className="pbtn" disabled={busy} onClick={reset}>{busy?<Spinner size={16}/>:"Şifreyi Güncelle"}</button>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -444,31 +509,49 @@ function PostCard({p,user,onUserClick,onTagClick,onLike,onFav,onDelete,i=0,t}) {
   const liked=(p.likes||[]).includes(user.email)
   const faved=(p.favorited_by||[]).includes(user.email)
   const mine=p.user_email===user.email
+  const [copied,setCopied]=useState(false)
+  const [lightbox,setLightbox]=useState(false)
+
+  function copyLink() {
+    navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`)
+    setCopied(true);setTimeout(()=>setCopied(false),2000)
+  }
+
   return (
     <div className="card fu" style={{animationDelay:`${i*.04}s`}}>
+      {lightbox&&<Lightbox src={p.image_url} onClose={()=>setLightbox(false)}/>}
+
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
         <span className="bdg" style={{background:m.color+"18",color:m.color}}>{m.emoji} {m.label}</span>
         {p.location&&<span style={{fontSize:11,color:"var(--sub)"}}>📍 {p.location}</span>}
         <span style={{fontSize:11,color:"var(--sub)"}}>{ago(p.created_at)}</span>
         {mine&&<span className="bdg" style={{background:"#6366f111",color:"#6366f1"}}>{t.yourPost}</span>}
       </div>
+
       <div style={{fontWeight:600,fontSize:15,marginBottom:6,color:"var(--text)"}}>{p.title}</div>
-      <div style={{fontSize:13,color:"var(--sub)",lineHeight:1.65,marginBottom:10}}>{p.description}</div>
+      <div style={{fontSize:13,color:"var(--sub)",lineHeight:1.65,marginBottom:p.image_url?12:0}}>{p.description}</div>
+
+      {p.image_url&&(
+        <img src={p.image_url} alt="" className="post-img" onClick={()=>setLightbox(true)}/>
+      )}
+
       {(p.tags||[]).length>0&&(
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12,marginTop:8}}>
           {(p.tags||[]).map(tag=>(
             <span key={tag} className="tag" onClick={()=>onTagClick&&onTagClick(tag)}>#{tag}</span>
           ))}
         </div>
       )}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:12}}>
         <div style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}} onClick={()=>onUserClick(p.user_email)}>
           <Avatar name={p.user_name} size={24}/>
           <span style={{fontSize:12,color:"var(--sub)"}}>{p.user_name}</span>
         </div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
           <button className={`likebtn ${liked?"on":""}`} onClick={()=>onLike(p)}>{liked?"♥":"♡"} {(p.likes||[]).length}</button>
           <button className={`favbtn ${faved?"on":""}`} onClick={()=>onFav(p)}>{faved?"❤️":"🤍"}</button>
+          <button className="copybtn" onClick={copyLink}>{copied?"✅":"🔗"}</button>
           {mine&&<button onClick={()=>onDelete(p.id)} style={{background:"none",border:"none",color:"var(--border)",cursor:"pointer",fontSize:15,padding:4,transition:"color .2s"}} onMouseOver={e=>e.target.style.color="#ef4444"} onMouseOut={e=>e.target.style.color="var(--border)"}>🗑</button>}
         </div>
       </div>
@@ -478,12 +561,12 @@ function PostCard({p,user,onUserClick,onTagClick,onLike,onFav,onDelete,i=0,t}) {
 
 // ── FEED PAGE ─────────────────────────────────────────────────────────────────
 function FeedPage({user,onUserClick,t}) {
-  const [posts,setPosts]=useState([]), [filter,setFilter]=useState("all")
-  const [search,setSearch]=useState(""), [location,setLocation]=useState("Tümü")
-  const [tagFilter,setTagFilter]=useState(""), [myTab,setMyTab]=useState(false)
+  const [posts,setPosts]=useState([]),[filter,setFilter]=useState("all")
+  const [search,setSearch]=useState(""),[location,setLocation]=useState("Tümü")
+  const [tagFilter,setTagFilter]=useState(""),[myTab,setMyTab]=useState(false)
   const [modal,setModal]=useState(false)
-  const [form,setForm]=useState({category:"ev",title:"",desc:"",location:"",tagInput:"",tags:[]})
-  const [loading,setLoading]=useState(true), [posting,setPosting]=useState(false)
+  const [form,setForm]=useState({category:"ev",title:"",desc:"",location:"",tagInput:"",tags:[],imageFile:null,imagePreview:null})
+  const [loading,setLoading]=useState(true),[posting,setPosting]=useState(false)
 
   useEffect(()=>{load()},[])
 
@@ -508,9 +591,21 @@ function FeedPage({user,onUserClick,t}) {
   async function addPost() {
     if(!form.title.trim()||!form.desc.trim()) return
     setPosting(true)
-    const {data,error}=await supabase.from("posts").insert({user_id:user.id,user_name:user.name,user_email:user.email,category:form.category,title:form.title,description:form.desc,location:form.location,tags:form.tags,likes:[],favorited_by:[]}).select().single()
+    let image_url=null
+    if(form.imageFile) {
+      const ext=form.imageFile.name.split(".").pop()
+      const path=`${user.id}_${Date.now()}.${ext}`
+      await supabase.storage.from("post-images").upload(path,form.imageFile)
+      const {data}=supabase.storage.from("post-images").getPublicUrl(path)
+      image_url=data.publicUrl
+    }
+    const {data,error}=await supabase.from("posts").insert({
+      user_id:user.id,user_name:user.name,user_email:user.email,
+      category:form.category,title:form.title,description:form.desc,
+      location:form.location,tags:form.tags,likes:[],favorited_by:[],image_url
+    }).select().single()
     if(!error) setPosts(prev=>[data,...prev])
-    setForm({category:"ev",title:"",desc:"",location:"",tagInput:"",tags:[]})
+    setForm({category:"ev",title:"",desc:"",location:"",tagInput:"",tags:[],imageFile:null,imagePreview:null})
     setModal(false);setPosting(false)
   }
 
@@ -525,11 +620,18 @@ function FeedPage({user,onUserClick,t}) {
     if(tag&&!form.tags.includes(tag)&&form.tags.length<5) setForm(p=>({...p,tags:[...p.tags,tag],tagInput:""}))
   }
 
+  function handleImage(e) {
+    const file=e.target.files?.[0];if(!file) return
+    const reader=new FileReader()
+    reader.onload=ev=>setForm(p=>({...p,imageFile:file,imagePreview:ev.target.result}))
+    reader.readAsDataURL(file)
+  }
+
   const shown=posts.filter(p=>
     (filter==="all"||p.category===filter)&&
     (location==="Tümü"||p.location===location)&&
     (!tagFilter||(p.tags||[]).includes(tagFilter))&&
-    (p.title.toLowerCase().includes(search.toLowerCase())||(p.description||"").toLowerCase().includes(search.toLowerCase())||(p.tags||[]).some(t=>t.includes(search.toLowerCase())))&&
+    (p.title.toLowerCase().includes(search.toLowerCase())||(p.description||"").toLowerCase().includes(search.toLowerCase())||(p.tags||[]).some(tg=>tg.includes(search.toLowerCase())))&&
     (!myTab||p.user_email===user.email)
   )
 
@@ -594,6 +696,24 @@ function FeedPage({user,onUserClick,t}) {
               </div>
               <div><div className="lbl">{t.title.toUpperCase()}</div><input className="inp" placeholder="Örn: Ev arkadaşı arıyorum" value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))}/></div>
               <div><div className="lbl">{t.description.toUpperCase()}</div><textarea className="inp" placeholder="Detayları buraya yaz..." rows={4} style={{resize:"vertical"}} value={form.desc} onChange={e=>setForm(p=>({...p,desc:e.target.value}))}/></div>
+
+              {/* Fotoğraf yükleme */}
+              <div>
+                <div className="lbl">{t.addPhoto.toUpperCase()} (opsiyonel)</div>
+                {form.imagePreview?(
+                  <div style={{position:"relative"}}>
+                    <img src={form.imagePreview} alt="" style={{width:"100%",maxHeight:200,objectFit:"cover",borderRadius:12}}/>
+                    <button onClick={()=>setForm(p=>({...p,imageFile:null,imagePreview:null}))} style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.6)",color:"#fff",border:"none",borderRadius:"50%",width:28,height:28,cursor:"pointer",fontSize:14}}>✕</button>
+                  </div>
+                ):(
+                  <label className="img-upload-area">
+                    <input type="file" accept="image/*" style={{display:"none"}} onChange={handleImage}/>
+                    <div style={{fontSize:28,marginBottom:8}}>📷</div>
+                    <div style={{fontSize:13,color:"var(--sub)"}}>Fotoğraf eklemek için tıkla</div>
+                  </label>
+                )}
+              </div>
+
               <div><div className="lbl">{t.location.toUpperCase()}</div>
                 <select className="sel" value={form.location} onChange={e=>setForm(p=>({...p,location:e.target.value}))}>
                   <option value="">Seç (opsiyonel)</option>
@@ -608,9 +728,9 @@ function FeedPage({user,onUserClick,t}) {
                 </div>
                 {form.tags.length>0&&(
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    {form.tags.map(t=>(
-                      <span key={t} style={{display:"flex",alignItems:"center",gap:4,background:"#6366f111",border:"1px solid #6366f133",borderRadius:100,padding:"3px 10px",fontSize:12,color:"#6366f1"}}>
-                        #{t}<button onClick={()=>setForm(p=>({...p,tags:p.tags.filter(x=>x!==t)}))} style={{background:"none",border:"none",color:"#6366f1",cursor:"pointer",fontSize:12,padding:0}}>✕</button>
+                    {form.tags.map(tg=>(
+                      <span key={tg} style={{display:"flex",alignItems:"center",gap:4,background:"#6366f111",border:"1px solid #6366f133",borderRadius:100,padding:"3px 10px",fontSize:12,color:"#6366f1"}}>
+                        #{tg}<button onClick={()=>setForm(p=>({...p,tags:p.tags.filter(x=>x!==tg)}))} style={{background:"none",border:"none",color:"#6366f1",cursor:"pointer",fontSize:12,padding:0}}>✕</button>
                       </span>
                     ))}
                   </div>
@@ -628,10 +748,130 @@ function FeedPage({user,onUserClick,t}) {
   )
 }
 
+// ── MESSAGES PAGE (Realtime) ──────────────────────────────────────────────────
+function MessagesPage({user,onUnreadChange,startWith,t}) {
+  const [convos,setConvos]=useState([]),[active,setActive]=useState(null)
+  const [msgs,setMsgs]=useState([]),[newMsg,setNewMsg]=useState("")
+  const [loading,setLoading]=useState(true),[sending,setSending]=useState(false)
+  const bottomRef=useRef(),channelRef=useRef(null)
+
+  useEffect(()=>{loadConvos()},[])
+  useEffect(()=>{
+    if(startWith){
+      setActive(startWith.email)
+      setConvos(prev=>prev.find(c=>c.email===startWith.email)?prev:[{email:startWith.email,name:startWith.name,last:null,unread:0},...prev])
+    }
+  },[startWith])
+  useEffect(()=>{
+    if(!active) return
+    loadMsgs(active)
+    // Realtime subscription
+    if(channelRef.current) supabase.removeChannel(channelRef.current)
+    channelRef.current=supabase.channel(`msgs-${user.email}-${active}`)
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},(payload)=>{
+        const m=payload.new
+        if((m.from_email===user.email&&m.to_email===active)||(m.from_email===active&&m.to_email===user.email)){
+          setMsgs(prev=>[...prev,m])
+          if(m.to_email===user.email) supabase.from("messages").update({read:true}).eq("id",m.id)
+        }
+      }).subscribe()
+    return ()=>{ if(channelRef.current) supabase.removeChannel(channelRef.current) }
+  },[active])
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"})},[msgs])
+
+  async function loadConvos() {
+    setLoading(true)
+    const {data}=await supabase.from("messages").select("*").or(`from_email.eq.${user.email},to_email.eq.${user.email}`).order("created_at",{ascending:false})
+    if(!data){setLoading(false);return}
+    const map={}
+    data.forEach(m=>{
+      const other=m.from_email===user.email?{email:m.to_email,name:m.to_name}:{email:m.from_email,name:m.from_name}
+      if(!map[other.email]){map[other.email]={...other,last:m,unread:0}}
+      if(m.to_email===user.email&&!m.read) map[other.email].unread++
+    })
+    const list=Object.values(map)
+    setConvos(list);onUnreadChange(list.reduce((a,c)=>a+c.unread,0));setLoading(false)
+  }
+
+  async function loadMsgs(email) {
+    const {data}=await supabase.from("messages").select("*")
+      .or(`and(from_email.eq.${user.email},to_email.eq.${email}),and(from_email.eq.${email},to_email.eq.${user.email})`)
+      .order("created_at",{ascending:true})
+    setMsgs(data||[])
+    await supabase.from("messages").update({read:true}).eq("to_email",user.email).eq("from_email",email)
+    loadConvos()
+  }
+
+  async function send() {
+    if(!newMsg.trim()||!active) return
+    setSending(true)
+    const convo=convos.find(c=>c.email===active)
+    await supabase.from("messages").insert({from_email:user.email,from_name:user.name,to_email:active,to_name:convo?.name||active,content:newMsg,read:false})
+    setNewMsg("");setSending(false)
+  }
+
+  return (
+    <div style={{maxWidth:900,margin:"0 auto",padding:"32px 24px 40px"}}>
+      <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:22,marginBottom:20,color:"var(--text)"}}>{t.messages}</div>
+      <div style={{display:"grid",gridTemplateColumns:active?"280px 1fr":"1fr",gap:16,minHeight:400}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8,overflowY:"auto",maxHeight:"70vh"}}>
+          {loading?<div style={{textAlign:"center",padding:40}}><Spinner/></div>
+          :convos.length===0?<Empty icon="💬" text={t.noMsg}/>
+          :convos.map(c=>(
+            <div key={c.email} onClick={()=>setActive(c.email)} style={{background:"var(--card)",border:`1px solid ${active===c.email?"#6366f1":"var(--border)"}`,borderRadius:14,padding:"12px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"all .2s"}}>
+              <Avatar name={c.name} size={40}/>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:14,color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</div>
+                <div style={{fontSize:12,color:"var(--sub)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:4}}>
+                  {c.last?.from_email===user.email&&<span style={{fontSize:10}}>✓✓</span>}
+                  {c.last?.content||"Yeni konuşma"}
+                </div>
+              </div>
+              {c.unread>0&&<span style={{background:"#6366f1",color:"#fff",fontSize:10,padding:"2px 7px",borderRadius:100,fontWeight:700}}>{c.unread}</span>}
+            </div>
+          ))}
+        </div>
+
+        {active&&(
+          <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:16,display:"flex",flexDirection:"column",overflow:"hidden",minHeight:400,maxHeight:"70vh"}}>
+            <div style={{padding:"14px 16px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:10}}>
+              <Avatar name={convos.find(c=>c.email===active)?.name||active} size={32}/>
+              <div>
+                <div style={{fontWeight:600,fontSize:14,color:"var(--text)"}}>{convos.find(c=>c.email===active)?.name||active}</div>
+                <div style={{fontSize:11,color:"#10b981"}}>● Online</div>
+              </div>
+            </div>
+            <div style={{flex:1,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:8}}>
+              {msgs.map((m,i)=>(
+                <div key={m.id} style={{display:"flex",flexDirection:"column",alignItems:m.from_email===user.email?"flex-end":"flex-start"}}>
+                  <div className={`msg-bubble ${m.from_email===user.email?"mine":"theirs"}`}>
+                    {m.content}
+                  </div>
+                  <div style={{fontSize:10,color:"var(--sub)",marginTop:3,display:"flex",alignItems:"center",gap:4}}>
+                    {ago(m.created_at)}
+                    {m.from_email===user.email&&<span style={{color:m.read?"#6366f1":"var(--sub)"}}>✓✓</span>}
+                  </div>
+                </div>
+              ))}
+              <div ref={bottomRef}/>
+            </div>
+            <div style={{padding:12,borderTop:"1px solid var(--border)",display:"flex",gap:8}}>
+              <input className="inp" placeholder="Mesaj yaz..." value={newMsg} onChange={e=>setNewMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} style={{flex:1}}/>
+              <button onClick={send} disabled={sending||!newMsg.trim()} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"#fff",border:"none",borderRadius:12,padding:"0 18px",cursor:"pointer",fontFamily:"'Plus Jakarta Sans'",fontWeight:600,fontSize:13,minWidth:72}}>
+                {sending?<Spinner size={14}/>:t.send}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── SEARCH PAGE ───────────────────────────────────────────────────────────────
 function SearchPage({user,onUserClick,onStartMessage,t}) {
-  const [query,setQuery]=useState(""), [tab,setTab]=useState("posts")
-  const [posts,setPosts]=useState([]), [users,setUsers]=useState([])
+  const [query,setQuery]=useState(""),[tab,setTab]=useState("posts")
+  const [posts,setPosts]=useState([]),[users,setUsers]=useState([])
   const [loading,setLoading]=useState(false)
 
   useEffect(()=>{if(query.length>1)doSearch()},[query,tab])
@@ -642,7 +882,7 @@ function SearchPage({user,onUserClick,onStartMessage,t}) {
       const {data}=await supabase.from("posts").select("*").or(`title.ilike.%${query}%,description.ilike.%${query}%`).order("created_at",{ascending:false}).limit(20)
       setPosts(data||[])
     } else {
-      const {data}=await supabase.from("profiles").select("*").or(`name.ilike.%${query}%,email.ilike.%${query}%,bolum.ilike.%${query}%`).limit(20)
+      const {data}=await supabase.from("profiles").select("*").or(`name.ilike.%${query}%,email.ilike.%${query}%,bolum.ilike.%${query}%,username.ilike.%${query}%`).limit(20)
       setUsers(data||[])
     }
     setLoading(false)
@@ -663,18 +903,15 @@ function SearchPage({user,onUserClick,onStartMessage,t}) {
   return (
     <div className="page">
       <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:22,marginBottom:20,color:"var(--text)"}}>{t.discover}</div>
-
       <div style={{position:"relative",marginBottom:16}}>
         <span style={{position:"absolute",left:16,top:"50%",transform:"translateY(-50%)",color:"var(--sub)",pointerEvents:"none"}}>🔍</span>
         <input className="srch" placeholder={t.searchPlaceholder} value={query} onChange={e=>setQuery(e.target.value)} autoFocus/>
       </div>
-
       <div style={{display:"flex",gap:16,borderBottom:"1px solid var(--border)",marginBottom:20}}>
         {[["posts",t.posts],["users",t.users]].map(([k,l])=>(
           <button key={k} className={`tab ${tab===k?"on":""}`} onClick={()=>setTab(k)}>{l}</button>
         ))}
       </div>
-
       {query.length<2?<Empty icon="🔍" text={t.typeToSearch}/>
       :loading?<div style={{textAlign:"center",padding:60}}><Spinner/></div>
       :tab==="posts"?(
@@ -691,6 +928,7 @@ function SearchPage({user,onUserClick,onStartMessage,t}) {
                 <Avatar name={u.name} src={u.avatar_url} size={48}/>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontWeight:600,fontSize:15,color:"var(--text)"}}>{u.name}</div>
+                  {u.username&&<div style={{fontSize:12,color:"#6366f1"}}>@{u.username}</div>}
                   <div style={{fontSize:12,color:"var(--sub)"}}>{u.bolum||""}{u.sinif?` · ${u.sinif}. Sınıf`:""}</div>
                   <div style={{fontSize:11,color:"var(--sub)",marginTop:2}}>{u.account_type==="sirket"?t.company2:t.student}</div>
                 </div>
@@ -706,7 +944,7 @@ function SearchPage({user,onUserClick,onStartMessage,t}) {
 
 // ── NOTIFICATIONS PAGE ────────────────────────────────────────────────────────
 function NotificationsPage({user,onUpdate,t}) {
-  const [requests,setRequests]=useState([]), [loading,setLoading]=useState(true)
+  const [requests,setRequests]=useState([]),[loading,setLoading]=useState(true)
 
   useEffect(()=>{load()},[])
 
@@ -756,104 +994,9 @@ function NotificationsPage({user,onUpdate,t}) {
   )
 }
 
-// ── MESSAGES PAGE ─────────────────────────────────────────────────────────────
-function MessagesPage({user,onUnreadChange,startWith,t}) {
-  const [convos,setConvos]=useState([]), [active,setActive]=useState(null)
-  const [msgs,setMsgs]=useState([]), [newMsg,setNewMsg]=useState("")
-  const [loading,setLoading]=useState(true), [sending,setSending]=useState(false)
-  const bottomRef=useRef()
-
-  useEffect(()=>{loadConvos()},[])
-  useEffect(()=>{
-    if(startWith){
-      setActive(startWith.email)
-      setConvos(prev=>prev.find(c=>c.email===startWith.email)?prev:[{email:startWith.email,name:startWith.name,last:null,unread:0},...prev])
-    }
-  },[startWith])
-  useEffect(()=>{if(active)loadMsgs(active)},[active])
-  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"})},[msgs])
-
-  async function loadConvos() {
-    setLoading(true)
-    const {data}=await supabase.from("messages").select("*").or(`from_email.eq.${user.email},to_email.eq.${user.email}`).order("created_at",{ascending:false})
-    if(!data){setLoading(false);return}
-    const map={}
-    data.forEach(m=>{
-      const other=m.from_email===user.email?{email:m.to_email,name:m.to_name}:{email:m.from_email,name:m.from_name}
-      if(!map[other.email]){map[other.email]={...other,last:m,unread:0}}
-      if(m.to_email===user.email&&!m.read) map[other.email].unread++
-    })
-    const list=Object.values(map)
-    setConvos(list);onUnreadChange(list.reduce((a,c)=>a+c.unread,0));setLoading(false)
-  }
-
-  async function loadMsgs(email) {
-    const {data}=await supabase.from("messages").select("*")
-      .or(`and(from_email.eq.${user.email},to_email.eq.${email}),and(from_email.eq.${email},to_email.eq.${user.email})`)
-      .order("created_at",{ascending:true})
-    setMsgs(data||[])
-    await supabase.from("messages").update({read:true}).eq("to_email",user.email).eq("from_email",email)
-    loadConvos()
-  }
-
-  async function send() {
-    if(!newMsg.trim()||!active) return
-    setSending(true)
-    const convo=convos.find(c=>c.email===active)
-    await supabase.from("messages").insert({from_email:user.email,from_name:user.name,to_email:active,to_name:convo?.name||active,content:newMsg})
-    setNewMsg("");await loadMsgs(active);setSending(false)
-  }
-
-  return (
-    <div style={{maxWidth:900,margin:"0 auto",padding:"32px 24px 40px"}}>
-      <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:22,marginBottom:20,color:"var(--text)"}}>{t.messages}</div>
-      <div style={{display:"grid",gridTemplateColumns:active?"280px 1fr":"1fr",gap:16,height:"calc(100vh-200px)",minHeight:400}}>
-        <div style={{display:"flex",flexDirection:"column",gap:8,overflowY:"auto"}}>
-          {loading?<div style={{textAlign:"center",padding:40}}><Spinner/></div>
-          :convos.length===0?<Empty icon="💬" text={t.noMsg}/>
-          :convos.map(c=>(
-            <div key={c.email} onClick={()=>setActive(c.email)} style={{background:"var(--card)",border:`1px solid ${active===c.email?"#6366f1":"var(--border)"}`,borderRadius:14,padding:"12px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"all .2s"}}>
-              <Avatar name={c.name} size={40}/>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontWeight:600,fontSize:14,color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</div>
-                <div style={{fontSize:12,color:"var(--sub)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.last?.content||"Yeni konuşma"}</div>
-              </div>
-              {c.unread>0&&<span style={{background:"#6366f1",color:"#fff",fontSize:10,padding:"2px 7px",borderRadius:100,fontWeight:700}}>{c.unread}</span>}
-            </div>
-          ))}
-        </div>
-
-        {active&&(
-          <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:16,display:"flex",flexDirection:"column",overflow:"hidden",minHeight:400}}>
-            <div style={{padding:"14px 16px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:10}}>
-              <Avatar name={convos.find(c=>c.email===active)?.name||active} size={32}/>
-              <div style={{fontWeight:600,fontSize:14,color:"var(--text)"}}>{convos.find(c=>c.email===active)?.name||active}</div>
-            </div>
-            <div style={{flex:1,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:8}}>
-              {msgs.map(m=>(
-                <div key={m.id} className={`msg-bubble ${m.from_email===user.email?"mine":"theirs"}`}>
-                  {m.content}
-                  <div style={{fontSize:10,opacity:.6,marginTop:4}}>{ago(m.created_at)}</div>
-                </div>
-              ))}
-              <div ref={bottomRef}/>
-            </div>
-            <div style={{padding:12,borderTop:"1px solid var(--border)",display:"flex",gap:8}}>
-              <input className="inp" placeholder="Mesaj yaz..." value={newMsg} onChange={e=>setNewMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} style={{flex:1}}/>
-              <button onClick={send} disabled={sending||!newMsg.trim()} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"#fff",border:"none",borderRadius:12,padding:"0 18px",cursor:"pointer",fontFamily:"'Plus Jakarta Sans'",fontWeight:600,fontSize:13,minWidth:72}}>
-                {sending?<Spinner size={14}/>:t.send}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // ── FAVORİLER PAGE ────────────────────────────────────────────────────────────
 function FavoritesPage({user,onUserClick,t}) {
-  const [posts,setPosts]=useState([]), [loading,setLoading]=useState(true)
+  const [posts,setPosts]=useState([]),[loading,setLoading]=useState(true)
 
   useEffect(()=>{
     (async()=>{
@@ -887,10 +1030,10 @@ function FavoritesPage({user,onUserClick,t}) {
 
 // ── STAJ PAGE ─────────────────────────────────────────────────────────────────
 function StajPage({user,t}) {
-  const [posts,setPosts]=useState([]), [loading,setLoading]=useState(true)
-  const [modal,setModal]=useState(false), [applyModal,setApplyModal]=useState(null)
-  const [form,setForm]=useState({title:"",desc:"",sirket:"",lokasyon:""}), [applyMsg,setApplyMsg]=useState("")
-  const [posting,setPosting]=useState(false), [applying,setApplying]=useState(false), [ok,setOk]=useState("")
+  const [posts,setPosts]=useState([]),[loading,setLoading]=useState(true)
+  const [modal,setModal]=useState(false),[applyModal,setApplyModal]=useState(null)
+  const [form,setForm]=useState({title:"",desc:"",sirket:"",lokasyon:""}),[applyMsg,setApplyMsg]=useState("")
+  const [posting,setPosting]=useState(false),[applying,setApplying]=useState(false),[ok,setOk]=useState("")
   const isSirket=user.account_type==="sirket"
 
   useEffect(()=>{
@@ -927,7 +1070,6 @@ function StajPage({user,t}) {
       </div>
       {!isSirket&&<div style={{background:"#6366f111",border:"1px solid #6366f133",borderRadius:14,padding:"12px 16px",fontSize:13,color:"#6366f1",marginBottom:20,fontWeight:500}}>{t.companyHint}</div>}
       {ok&&<div className="ok" style={{marginBottom:16}}>{ok}</div>}
-
       {loading?<div style={{textAlign:"center",padding:60}}><Spinner/></div>
       :posts.length===0?<Empty icon="💼" text="Henüz staj ilanı yok."/>
       :(
@@ -988,11 +1130,12 @@ function StajPage({user,t}) {
 
 // ── PROFİL PAGE ───────────────────────────────────────────────────────────────
 function ProfilPage({user,setUser,t,lang}) {
-  const [profile,setProfile]=useState(null), [editing,setEditing]=useState(false)
-  const [form,setForm]=useState({name:"",bio:"",bolum:"",sinif:""})
-  const [saving,setSaving]=useState(false), [uploading,setUploading]=useState(false)
-  const [myPosts,setMyPosts]=useState([]), [loaded,setLoaded]=useState(false)
-  const [followers,setFollowers]=useState(0), [following,setFollowing]=useState(0)
+  const [profile,setProfile]=useState(null),[editing,setEditing]=useState(false)
+  const [form,setForm]=useState({name:"",bio:"",bolum:"",sinif:"",username:""})
+  const [saving,setSaving]=useState(false),[uploading,setUploading]=useState(false)
+  const [myPosts,setMyPosts]=useState([]),[loaded,setLoaded]=useState(false)
+  const [followers,setFollowers]=useState(0),[following,setFollowing]=useState(0)
+  const [copied,setCopied]=useState(false)
   const fileRef=useRef()
 
   useEffect(()=>{loadProfile()},[])
@@ -1004,8 +1147,9 @@ function ProfilPage({user,setUser,t,lang}) {
       supabase.from("follows").select("id").eq("following_email",user.email).eq("status","accepted"),
       supabase.from("follows").select("id").eq("follower_email",user.email).eq("status","accepted"),
     ])
-    const prof=p||{id:user.id,email:user.email,name:user.name,bio:"",bolum:"",sinif:"",avatar_url:null}
-    setProfile(prof);setForm({name:prof.name||"",bio:prof.bio||"",bolum:prof.bolum||"",sinif:prof.sinif||""})
+    const prof=p||{id:user.id,email:user.email,name:user.name,bio:"",bolum:"",sinif:"",avatar_url:null,username:""}
+    setProfile(prof)
+    setForm({name:prof.name||"",bio:prof.bio||"",bolum:prof.bolum||"",sinif:prof.sinif||"",username:prof.username||""})
     setMyPosts(ps||[]);setFollowers(frs?.length||0);setFollowing(fng?.length||0);setLoaded(true)
   }
 
@@ -1027,6 +1171,18 @@ function ProfilPage({user,setUser,t,lang}) {
     setUploading(false)
   }
 
+  function copyProfileLink() {
+    const handle=profile.username||user.email
+    navigator.clipboard.writeText(`kampus-gold.vercel.app/profile/${handle}`)
+    setCopied(true);setTimeout(()=>setCopied(false),2000)
+  }
+
+  const gradeLabel = (sinif) => {
+    if(!sinif) return ""
+    const labels=lang==="en"?[t.year1,t.year2,t.year3,t.year4]:[t.year1,t.year2,t.year3,t.year4]
+    return labels[sinif-1]||sinif+(lang==="en"?"th Year":". Sınıf")
+  }
+
   if(!loaded) return <div style={{textAlign:"center",padding:60}}><Spinner/></div>
 
   return (
@@ -1042,9 +1198,10 @@ function ProfilPage({user,setUser,t,lang}) {
           </div>
           <div style={{flex:1}}>
             <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:18,color:"var(--text)"}}>{profile.name}</div>
+            {profile.username&&<div style={{fontSize:12,color:"#6366f1",marginTop:2}}>@{profile.username}</div>}
             <div style={{fontSize:12,color:"var(--sub)",marginTop:2}}>{profile.email}</div>
             <div style={{fontSize:12,color:"#6366f1",marginTop:3,fontWeight:500}}>{user.account_type==="sirket"?t.company2:t.student}</div>
-            {profile.bolum&&<div style={{fontSize:13,color:"#6366f1",fontWeight:500,marginTop:4}}>{profile.bolum}{profile.sinif&&` · ${lang==="en"?[t.year1,t.year2,t.year3,t.year4][profile.sinif-1]||profile.sinif:profile.sinif+". Sınıf"}`}</div>}
+            {profile.bolum&&<div style={{fontSize:13,color:"#6366f1",fontWeight:500,marginTop:4}}>{profile.bolum}{profile.sinif&&` · ${gradeLabel(profile.sinif)}`}</div>}
             <div style={{fontSize:11,color:"var(--sub)",marginTop:4}}>{joinYear(profile.created_at)}{t.memberSince}</div>
           </div>
           <button onClick={()=>setEditing(!editing)} style={{background:"none",border:"1px solid var(--border)",borderRadius:100,padding:"6px 14px",fontSize:12,color:"var(--sub)",cursor:"pointer",fontFamily:"'Plus Jakarta Sans'",fontWeight:500}}>
@@ -1054,9 +1211,19 @@ function ProfilPage({user,setUser,t,lang}) {
 
         {profile.bio&&!editing&&<div style={{fontSize:13,color:"var(--sub)",lineHeight:1.6,padding:"12px 0",borderTop:"1px solid var(--border)"}}>{profile.bio}</div>}
 
+        <button onClick={copyProfileLink} style={{marginTop:12,background:"none",border:"1px solid var(--border)",borderRadius:100,padding:"6px 16px",fontSize:12,color:"var(--sub)",cursor:"pointer",fontFamily:"'Plus Jakarta Sans'",display:"flex",alignItems:"center",gap:6}}>
+          {copied?"✅ "+t.linkCopied:"🔗 "+t.shareProfile}
+        </button>
+
         {editing&&(
-          <div style={{display:"flex",flexDirection:"column",gap:12,borderTop:"1px solid var(--border)",paddingTop:16}}>
+          <div style={{display:"flex",flexDirection:"column",gap:12,borderTop:"1px solid var(--border)",paddingTop:16,marginTop:16}}>
             <div><div className="lbl">{t.name.toUpperCase()}</div><input className="inp" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></div>
+            <div><div className="lbl">{t.username.toUpperCase()}</div>
+              <div style={{position:"relative"}}>
+                <span style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",color:"var(--sub)",fontSize:14}}>@</span>
+                <input className="inp" style={{paddingLeft:28}} placeholder={t.usernamePlaceholder} value={form.username} onChange={e=>setForm(p=>({...p,username:e.target.value.replace(/[^a-z0-9_]/gi,"").toLowerCase()}))}/>
+              </div>
+            </div>
             {user.account_type!=="sirket"&&<>
               <div><div className="lbl">{t.department.toUpperCase()}</div><input className="inp" placeholder="Bilgisayar Mühendisliği" value={form.bolum} onChange={e=>setForm(p=>({...p,bolum:e.target.value}))}/></div>
               <div><div className="lbl">{t.grade.toUpperCase()}</div>
@@ -1082,13 +1249,14 @@ function ProfilPage({user,setUser,t,lang}) {
         ))}
       </div>
 
-      <div className="section-title">{t.myPosts}</div>
+      <div style={{fontFamily:"'Sora',sans-serif",fontWeight:700,fontSize:16,color:"var(--text)",marginBottom:14}}>{t.myPosts}</div>
       {myPosts.length===0?<Empty icon="📭" text={t.noPost}/>:(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {myPosts.map(p=>{
             const m=CAT[p.category]
             return (
               <div key={p.id} className="card">
+                {p.image_url&&<img src={p.image_url} alt="" style={{width:"100%",height:120,objectFit:"cover",borderRadius:10,marginBottom:10}}/>}
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                   <span className="bdg" style={{background:m.color+"18",color:m.color}}>{m.emoji} {m.label}</span>
                   {p.location&&<span style={{fontSize:11,color:"var(--sub)"}}>📍 {p.location}</span>}
@@ -1138,7 +1306,7 @@ function SettingsPage({dark,setDark,lang,setLang,t}) {
         <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:16,padding:20}}>
           <div style={{fontFamily:"'Sora',sans-serif",fontWeight:600,fontSize:15,marginBottom:12,color:"var(--text)"}}>{t.about}</div>
           <div style={{fontSize:13,color:"var(--sub)",lineHeight:1.7}}>Kampüs, Bilkent Üniversitesi öğrencileri için geliştirilmiş sosyal platform ve ilan ağıdır.</div>
-          <div style={{marginTop:10,fontSize:12,color:"#6366f1",fontWeight:500}}>v4.0.0 · Bilkent Exclusive</div>
+          <div style={{marginTop:10,fontSize:12,color:"#6366f1",fontWeight:500}}>v5.0.0 · Bilkent Exclusive</div>
         </div>
       </div>
     </div>
@@ -1147,23 +1315,32 @@ function SettingsPage({dark,setDark,lang,setLang,t}) {
 
 // ── ROOT ─────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [user,setUser]=useState(null), [ready,setReady]=useState(false)
-  const [page,setPage]=useState("feed"), [dark,setDark]=useState(false), [lang,setLang]=useState("tr")
-  const [unread,setUnread]=useState(0), [notifCount,setNotifCount]=useState(0)
-  const [viewingUser,setViewingUser]=useState(null), [startMsgWith,setStartMsgWith]=useState(null)
+  const [user,setUser]=useState(null),[ready,setReady]=useState(false)
+  const [page,setPage]=useState("feed"),[dark,setDark]=useState(false),[lang,setLang]=useState("tr")
+  const [unread,setUnread]=useState(0),[notifCount,setNotifCount]=useState(0)
+  const [viewingUser,setViewingUser]=useState(null),[startMsgWith,setStartMsgWith]=useState(null)
+  const [isPasswordReset,setIsPasswordReset]=useState(false)
 
   const t = lang==="tr" ? TR : EN
 
   useEffect(()=>{
+    // Şifremi unuttum dönüş kontrolü
+    const hash=window.location.hash
+    if(hash.includes("type=recovery")) setIsPasswordReset(true)
+
     supabase.auth.getSession().then(async({data:{session}})=>{
       if(session){
         const u=session.user
+        if(u.recovery_sent_at&&!u.email_confirmed_at) return
         const {data:profile}=await supabase.from("profiles").select("*").eq("id",u.id).single()
         setUser({id:u.id,name:profile?.name||u.user_metadata?.name||u.email.split("@")[0],email:u.email,avatar:profile?.avatar_url||null,account_type:profile?.account_type||u.user_metadata?.account_type||"ogrenci"})
       }
       setReady(true)
     })
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_e,session)=>{if(!session)setUser(null)})
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
+      if(event==="PASSWORD_RECOVERY") setIsPasswordReset(true)
+      if(!session) setUser(null)
+    })
     return ()=>subscription.unsubscribe()
   },[])
 
@@ -1180,7 +1357,15 @@ export default function App() {
     </div>
   )
 
-  if(!user) return <><style>{getCSS(false)}</style><Auth onLogin={setUser}/></>
+  // Şifre sıfırlama ekranı
+  if(isPasswordReset) return (
+    <>
+      <style>{getCSS(dark)}</style>
+      <ResetPassword onDone={()=>{setIsPasswordReset(false);setUser(null)}}/>
+    </>
+  )
+
+  if(!user) return <><style>{getCSS(dark)}</style><Auth onLogin={setUser}/></>
 
   const pages={
     feed:          <FeedPage user={user} onUserClick={setViewingUser} t={t}/>,
